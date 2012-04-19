@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+        <style type="text/css">
+            html { height: 100% }
+            body { height: 100%; margin: 0; padding: 0 ; font-family:helvetica, arial, sans-serif;}
+            #map_canvas { height: 100%; position:absolute; top:0; left:0; z-index:100;}
+            h1 {width:200px; padding:100px 40px; text-align: center; background:yellow; opacity:1; top:150px; position:relative; margin:0 auto; z-index:200; border-radius:400px; }
+            h2 {width:150px; padding:80px 40px; text-align: center; background:white; opacity:1; top:70px; position:relative; margin:0 auto; z-index:350; border-radius:300px;}
+            h2:before {
+                content: "";
+                padding: 60px;
+                background: white;
+                border-radius: 60px;
+                position: absolute;
+                top: 22px;
+                left: -83px;
+                z-index: 290;
+            }
+            h2:after {
+                content: "";
+                padding: 80px;
+                background: white;
+                border-radius: 90px;
+                position: absolute;
+                top: 1px;
+                right: -109px;
+                z-index: 300;
+            }
+            
+            button {
+                position:absolute;
+                top:10%;
+                left:10%;
+                z-index:500;
+            }
+        </style>
+        <script type="text/javascript"
+                src="http://maps.googleapis.com/maps/api/js?key=AIzaSyAxeb0oy2ZMLO6Y_y-LYc0-p1fMAX95sOs&sensor=true">
+        </script>
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+        <script type="text/javascript" src="http://maps.stamen.com/js/tile.stamen.js"></script>
+        <script type="text/javascript">
+            function initialize() {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                    init_map,
+                    error,
+                    {enableHighAccuracy:true, timeout: 5000, maximumAge:0}
+                );
+                }
+                else {
+                    alert("Geolocation is not supported by this browser");
+                }
+                
+                function init_map(position) {
+                    var layer = "watercolor";
+                    var map = new google.maps.Map(document.getElementById("map_canvas"), {
+                        center: new google.maps.LatLng(position.coords.latitude, position.coords.longitude),
+                        zoom: 13,
+                        mapTypeId: layer,
+                        mapTypeControlOptions: {
+                            mapTypeIds: [layer]
+                        }
+                    });
+                    map.mapTypes.set(layer, new google.maps.StamenMapType(layer));
+
+                    console.log(position);
+
+                    checkWunderground(position);
+                    checkWorldWeather(position);
+                }
+                
+                function checkWunderground(position) {
+                    $.ajax({
+                        url: "http://api.wunderground.com/api/972ecff5505c464b/geolookup/conditions/q/"+ position.coords.latitude +","+ position.coords.longitude +".json",
+                        context: document.body,
+                        dataType: "jsonp"
+                    }).done(function(response) { 
+                        console.log(response);
+                    });
+                }
+                
+                function checkWorldWeather(position) {
+                    $.ajax({
+                        url: "http://free.worldweatheronline.com/feed/weather.ashx?q="+ position.coords.latitude +","+ position.coords.longitude +"&format=json&num_of_days=2&key=0a56f67211133813121104",
+                        context: document.body,
+                        dataType: "jsonp"
+                    }).done(function(response) { 
+                        console.log(response);
+                    });
+                }
+                
+                function error() {
+                    alert('Error');
+                }
+            }
+        </script>
+    </head>
+    <body onload="initialize()">
+        <!--        <h1></h1>
+                <h2></h2>-->
+        <div id="map_canvas" style="width:100%; height:100%"></div>
+        <button onclick="sendRequest();">Send request</button>
+        <div id="fb-root"></div>
+        <script>
+            window.fbAsyncInit = function() {
+                FB.init({
+                    appId      : '160422394010060', // App ID
+                    //      channelUrl : '//WWW.YOUR_DOMAIN.COM/channel.html', // Channel File
+                    status     : true, // check login status
+                    cookie     : true, // enable cookies to allow the server to access the session
+                    xfbml      : true  // parse XFBML
+                });
+
+                FB.Event.subscribe('auth.statusChange', handleStatusChange);
+            };
+
+            // Load the SDK Asynchronously
+            (function(d){
+                var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];
+                if (d.getElementById(id)) {return;}
+                js = d.createElement('script'); js.id = id; js.async = true;
+                js.src = "//connect.facebook.net/en_US/all.js";
+                ref.parentNode.insertBefore(js, ref);
+            }(document));
+   
+            function sendRequest() {
+                FB.ui({
+                    method: 'apprequests',
+                    message: 'invites you to learn how to make your mobile web app social'
+                }, 
+                function(response) {
+                    console.log('sendRequest response: ', response);
+                });
+            }
+        </script>
+    </body>
+</html>
