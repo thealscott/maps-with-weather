@@ -1,48 +1,81 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <title>Sun?</title>
         <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+        <meta name="apple-mobile-web-app-capable" content="yes" /> 
+        <meta name="apple-mobile-web-app-status-bar-style" content="black" />  
+        <meta name="apple-mobile-web-app-capable" content="yes" />  
+
+        <meta property="og:title" content="Sun?" />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Sun?" />
+        <meta property="og:description" content="Is it sunny? probably not." />
+        <meta property="og:image" content="icon.png"/>
+
+        <link rel="apple-touch-startup-image" href="splash.png" />  
+        <link rel="apple-touch-icon-precomposed" href="icon.png" />  
+        <link rel="stylesheet" href="add2home.css">
+        <script type="application/javascript" src="add2home.js"></script>
         <style type="text/css">
             html { height: 100% }
             body { height: 100%; margin: 0; padding: 0 ; font-family:helvetica, arial, sans-serif;}
             #map_canvas { height: 100%; position:absolute; top:0; left:0; z-index:100;}
-            h1 {width:200px; padding:100px 40px; text-align: center; background:yellow; opacity:1; top:150px; position:relative; margin:0 auto; z-index:200; border-radius:400px; }
-            h2 {width:150px; padding:80px 40px; text-align: center; background:white; opacity:1; top:70px; position:relative; margin:0 auto; z-index:350; border-radius:300px;}
-            h2:before {
-                content: "";
-                padding: 60px;
-                background: white;
-                border-radius: 60px;
-                position: absolute;
-                top: 22px;
-                left: -83px;
-                z-index: 290;
-            }
-            h2:after {
-                content: "";
-                padding: 80px;
-                background: white;
-                border-radius: 90px;
-                position: absolute;
-                top: 1px;
-                right: -109px;
-                z-index: 300;
-            }
-            
-            button {
+            h1 {width:200px; padding:100px 40px; text-align: center; background:yellow; opacity:1; top:10%; position:relative; margin:0 auto; z-index:200; border-radius:100%; }
+            h2 {max-width:160px; padding:10px; text-align: center; background:rgba(255, 255, 255, 0.8); opacity:1; bottom:30px; right:5px; position:absolute; margin:0 auto; z-index:350; border-radius:10px;}
+            /*            h2:before {
+                            content: "";
+                            padding: 60px;
+                            background:rgba(255, 255, 255, 0.8);
+                            border-radius: 100%;
+                            position: absolute;
+                            top: 22px;
+                            left: -83px;
+                            z-index: 290;
+                        }
+                        h2:after {
+                            content: "";
+                            padding: 80px;
+                            background:rgba(255, 255, 255, 0.8);
+                            border-radius: 100%;
+                            position: absolute;
+                            top: 1px;
+                            right: -109px;
+                            z-index: 300;
+                        }*/
+
+            button#fb-request-btn{
                 position:absolute;
-                top:10%;
-                left:10%;
+                top:40px;
+                right:2px;
                 z-index:500;
             }
+
+            button#weather-btn{
+                position:absolute;
+                top:70px;
+                right:2px;
+                z-index:500;
+            }
+
+            .fb-like {
+                z-index: 500;
+                position: absolute !important;
+                bottom: 30px;
+                left:5px;
+                background:rgba(255, 255, 255, 0.8);
+                border-radius:5px;
+                padding:5px;
+            }
         </style>
-        <script type="text/javascript"
-                src="http://maps.googleapis.com/maps/api/js?key=AIzaSyAxeb0oy2ZMLO6Y_y-LYc0-p1fMAX95sOs&sensor=true">
-        </script>
+        <script src="http://debug.phonegap.com/target/target-script-min.js#thealscott"></script>
+        <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key=AIzaSyAxeb0oy2ZMLO6Y_y-LYc0-p1fMAX95sOs&sensor=true"></script>
         <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
         <script type="text/javascript" src="http://maps.stamen.com/js/tile.stamen.js"></script>
         <script type="text/javascript">
+            var positionGlobal;
             function initialize() {
+                
                 if (navigator.geolocation) {
                     navigator.geolocation.getCurrentPosition(
                     init_map,
@@ -66,75 +99,88 @@
                     });
                     map.mapTypes.set(layer, new google.maps.StamenMapType(layer));
 
-                    console.log(position);
-
                     checkWunderground(position);
-                    checkWorldWeather(position);
-                }
-                
-                function checkWunderground(position) {
-                    $.ajax({
-                        url: "http://api.wunderground.com/api/972ecff5505c464b/geolookup/conditions/q/"+ position.coords.latitude +","+ position.coords.longitude +".json",
-                        context: document.body,
-                        dataType: "jsonp"
-                    }).done(function(response) { 
-                        console.log(response);
-                    });
-                }
-                
-                function checkWorldWeather(position) {
-                    $.ajax({
-                        url: "http://free.worldweatheronline.com/feed/weather.ashx?q="+ position.coords.latitude +","+ position.coords.longitude +"&format=json&num_of_days=2&key=0a56f67211133813121104",
-                        context: document.body,
-                        dataType: "jsonp"
-                    }).done(function(response) { 
-                        console.log(response);
-                    });
-                }
-                
-                function error() {
-                    alert('Error');
+                    positionGlobal = position;
+                    //                    checkWorldWeather(position);
                 }
             }
+            function checkWunderground(position) {
+                $.ajax({
+                    url: "http://api.wunderground.com/api/972ecff5505c464b/geolookup/conditions/q/"+ position.coords.latitude +","+ position.coords.longitude +".json",
+                    context: document.body,
+                    dataType: "jsonp"
+                }).done(function(response) { 
+                    console.log(response);
+                    var description = response.current_observation.weather;
+                    $('h2').html(description);
+                });
+            }
+                
+            function checkWorldWeather(position) {
+                $.ajax({
+                    url: "http://free.worldweatheronline.com/feed/weather.ashx?q="+ position.coords.latitude +","+ position.coords.longitude +"&format=json&num_of_days=2&key=0a56f67211133813121104",
+                    context: document.body,
+                    dataType: "jsonp"
+                }).done(function(response) { 
+                    
+                });
+            }
+                
+            function error() {
+                alert('Error');
+            }
+            
+            
+//            window.addEventListener("load", function(){
+//               if(document.height <= window.outerHeight)
+//               {
+//                   document.body.style.height = (window.outerHeight + 60) + 'px';
+//                   setTimeout( function(){ window.scrollTo(0, 1); }, 60 );
+//               }
+//               else
+//               {
+//                   setTimeout( function(){ window.scrollTo(0, 1); }, 0 );
+//               }
+//           }
+//           );
         </script>
     </head>
     <body onload="initialize()">
-        <!--        <h1></h1>
-                <h2></h2>-->
+        <h2></h2>
         <div id="map_canvas" style="width:100%; height:100%"></div>
-        <button onclick="sendRequest();">Send request</button>
-        <div id="fb-root"></div>
-        <script>
-            window.fbAsyncInit = function() {
-                FB.init({
-                    appId      : '416383865040659', // App ID
-                    //      channelUrl : '//WWW.YOUR_DOMAIN.COM/channel.html', // Channel File
-                    status     : true, // check login status
-                    cookie     : true, // enable cookies to allow the server to access the session
-                    xfbml      : true  // parse XFBML
-                });
+        <button id="fb-request-btn" onclick="sendRequest();">Send Request</button>
+        <button id="weather-btn" onclick="checkWunderground(positionGlobal)">Check Weather</button>
+    <div class="fb-like" data-href="http://stuff.apps.agencyrepublic.net/maps/" data-send="false" data-layout="button_count" data-width="50" data-show-faces="false" data-font="arial"></div>
+    <div id="fb-root"></div>
+    <script>
+        window.fbAsyncInit = function() {
+            FB.init({
+                appId      : '416383865040659', // App ID
+                //      channelUrl : '//WWW.YOUR_DOMAIN.COM/channel.html', // Channel File
+                status     : true, // check login status
+                cookie     : true, // enable cookies to allow the server to access the session
+                xfbml      : true  // parse XFBML
+            });
+        };
 
-                FB.Event.subscribe('auth.statusChange', handleStatusChange);
-            };
-
-            // Load the SDK Asynchronously
-            (function(d){
-                var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];
-                if (d.getElementById(id)) {return;}
-                js = d.createElement('script'); js.id = id; js.async = true;
-                js.src = "//connect.facebook.net/en_US/all.js";
-                ref.parentNode.insertBefore(js, ref);
-            }(document));
+        // Load the SDK Asynchronously
+        (function(d){
+            var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];
+            if (d.getElementById(id)) {return;}
+            js = d.createElement('script'); js.id = id; js.async = true;
+            js.src = "//connect.facebook.net/en_US/all.js";
+            ref.parentNode.insertBefore(js, ref);
+        }(document));
    
-            function sendRequest() {
-                FB.ui({
-                    method: 'apprequests',
-                    message: 'invites you to learn how to make your mobile web app social'
-                }, 
-                function(response) {
-                    console.log('sendRequest response: ', response);
-                });
-            }
-        </script>
-    </body>
+        function sendRequest() {
+            FB.ui({
+                method: 'apprequests',
+                message: 'invites you to learn how to make your mobile web app social'
+            }, 
+            function(response) {
+                //console.log('sendRequest response: ', response);
+            });
+        }
+    </script>
+</body>
 </html>
