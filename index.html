@@ -23,7 +23,7 @@
             #map_canvas { height: 100%; position:absolute; top:0; left:0; z-index:100;}
             h1 {width:200px; padding:100px 40px; text-align: center; background:yellow; opacity:1; top:10%; position:relative; margin:0 auto; z-index:200; border-radius:100%; }
             h2 {max-width:160px; padding:10px; text-align: center; background:rgba(255, 255, 255, 0.8); opacity:1; bottom:30px; right:5px; position:absolute; margin:0 auto; z-index:350; border-radius:10px;}
-            /*            h2:before {
+                        /*h2:before {
                             content: "";
                             padding: 60px;
                             background:rgba(255, 255, 255, 0.8);
@@ -44,16 +44,19 @@
                             z-index: 300;
                         }*/
 
-            button#fb-request-btn{
+            button#fb-request-btn, a{
                 position:absolute;
                 top:40px;
                 right:2px;
                 z-index:500;
+                background:white;
+                padding:5px;
+                border-radius:5px;
             }
 
             button#weather-btn{
                 position:absolute;
-                top:70px;
+                top:80px;
                 right:2px;
                 z-index:500;
             }
@@ -68,26 +71,37 @@
                 padding:5px;
             }
         </style>
+
         <script src="http://debug.phonegap.com/target/target-script-min.js#thealscott"></script>
         <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key=AIzaSyAxeb0oy2ZMLO6Y_y-LYc0-p1fMAX95sOs&sensor=true"></script>
         <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
         <script type="text/javascript" src="http://maps.stamen.com/js/tile.stamen.js"></script>
+        <script src="geoPosition.js" type="text/javascript" charset="utf-8"></script>
         <script type="text/javascript">
             var positionGlobal;
             function initialize() {
                 
-                if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(
-                    init_map,
-                    error,
-                    {enableHighAccuracy:true, timeout: 5000, maximumAge:0}
-                );
+
+                if(geoPosition.init()){
+                    geoPosition.getCurrentPosition(
+                        init_map,
+                        error,
+                        {enableHighAccuracy:true}
+                    );
                 }
+                // if (navigator.geolocation) {
+                //     navigator.geolocation.getCurrentPosition(
+                //         init_map,
+                //         error,
+                //         {enableHighAccuracy:true, timeout: 5000, maximumAge:0}
+                //     );
+                // }
                 else {
                     alert("Geolocation is not supported by this browser");
                 }
                 
                 function init_map(position) {
+                    console.log(position);
                     var layer = "watercolor";
                     var map = new google.maps.Map(document.getElementById("map_canvas"), {
                         center: new google.maps.LatLng(position.coords.latitude, position.coords.longitude),
@@ -112,7 +126,11 @@
                 }).done(function(response) { 
                     console.log(response);
                     var description = response.current_observation.weather;
-                    $('h2').html(description);
+                    var html = 
+                    "<div>"+ description +"</div>" +
+                    "<div>"+ response.current_observation.temp_c + "</div>"; 
+
+                    $('h2').html(html);
                 });
             }
                 
@@ -126,8 +144,10 @@
                 });
             }
                 
-            function error() {
-                alert('Error');
+            function error(response) {
+                console.log(response);
+                alert('Error '+ response.code);
+                alert(response.message);
             }
             
             
@@ -148,8 +168,9 @@
     <body onload="initialize()">
         <h2></h2>
         <div id="map_canvas" style="width:100%; height:100%"></div>
-        <button id="fb-request-btn" onclick="sendRequest();">Send Request</button>
+        <!-- <button id="fb-request-btn" onclick="sendRequest();">Send Request</button> -->
         <button id="weather-btn" onclick="checkWunderground(positionGlobal)">Check Weather</button>
+        <a href="http://ext10.nivea.co.uk/maps-prototype/" target="_blank">External Link</a>
     <div class="fb-like" data-href="http://stuff.apps.agencyrepublic.net/maps/" data-send="false" data-layout="button_count" data-width="50" data-show-faces="false" data-font="arial"></div>
     <div id="fb-root"></div>
     <script>
@@ -172,15 +193,15 @@
             ref.parentNode.insertBefore(js, ref);
         }(document));
    
-        function sendRequest() {
-            FB.ui({
-                method: 'apprequests',
-                message: 'invites you to learn how to make your mobile web app social'
-            }, 
-            function(response) {
-                //console.log('sendRequest response: ', response);
-            });
-        }
+        // function sendRequest() {
+        //     FB.ui({
+        //         method: 'apprequests',
+        //         message: 'invites you to learn how to make your mobile web app social'
+        //     }, 
+        //     function(response) {
+        //         //console.log('sendRequest response: ', response);
+        //     });
+        // }
     </script>
 </body>
 </html>
